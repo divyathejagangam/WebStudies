@@ -1,0 +1,469 @@
+<!doctype html>
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: #107896;
+            color: white;
+        }
+
+        .topbar {
+            display: inline-block;
+        }
+
+        .labelsec {
+            display: inline-block;
+            font-weight: 550;
+            text-align: right;
+            width: 400px;
+        }
+
+        .datasec {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .topbar:hover {
+            background-color: yellow;
+            color: blue;
+        }
+
+        #addcountry {
+            width: 200px;
+        }
+
+        #generatechart {
+            width: 200px;
+        }
+
+        #countrylist {
+            display: none;
+            position: relative;
+            display: inline-block;
+            background-color: white;
+            color: black;
+            cursor: pointer;
+        }
+
+        .errormessage {
+            color: pink;
+            display: inline-block;
+            text-align: left;
+            margin-left: 400px;
+        }
+    </style>
+
+    <script>
+        function enablesection() {
+
+            document.getElementById("byname").disabled = true;
+            document.getElementById("byname").value = "";
+            document.getElementById("countrylist").innerHTML = "";
+
+            cancel.disabled = false;
+            continentslist.disabled = false;
+            population.disabled = false;
+            country.disabled = false;
+            landarea.disabled = false;
+            gtbutton.disabled = false;
+            ltbutton.disabled = false;
+            leftbox.disabled = false;
+            rightbox.disabled = false;
+
+            displayerrormessages();
+        }
+
+        function submitNewCountry() {
+            const xhttp = new XMLHttpRequest();
+            const country = document.getElementById("country").value;
+            const population = document.getElementById("population").value;
+            const landarea = document.getElementById("landarea").value;
+            const continentcode = document.getElementById("continentslist").value;
+            var tradeAgrees = [...leftbox.options].map((s) => s.value).join(',');
+
+            xhttp.onload = function () {
+                docancel();
+            }
+
+            xhttp.open("GET", "insertdata.php?countryname=" + country + "&landarea=" + landarea + "&population=" + population + "&continentcode=" + continentcode + "&tradeAgreements=" + encodeURIComponent(tradeAgrees), true);
+            xhttp.send();
+        }
+
+        function displaybycountryname(countryName) {
+            const selectedName = countryName;
+            console.log(selectedName);
+            const xhttp = new XMLHttpRequest();
+
+            xhttp.onload = function () {
+                const countrydetails = JSON.parse(this.responseText);
+
+                if (countrydetails.length > 0) {
+                    enablesection();
+                    activatesubmit();
+                    countrynotfound.innerHTML = "";
+                    var dropdown = document.getElementById("continentslist");
+                    document.getElementById("country").value = countrydetails[0].countryname;
+                    document.getElementById("population").value = countrydetails[0].population;
+                    document.getElementById("landarea").value = countrydetails[0].landarea;
+                    console.log(countrydetails[0].continentname);
+                    var contname = countrydetails[0].continentname;
+                    for (var i = 0; i < dropdown.options.length; i++) {
+                        console.log(dropdown.options[i].text);
+                        if (dropdown.options[i].text == contname) {
+                            dropdown.options[i].selected = true;
+                            break;
+                        }
+                    }
+
+                } else {
+                    countrynotfound.innerHTML = "Country not found";
+                }
+                displayerrormessages();
+                activatesubmit();
+            }
+
+            xhttp.open("GET", "displaycountrydetails.php?countryname=" + selectedName, true);
+            xhttp.send();
+        }
+
+
+
+        function displaylistboxbycountryname(countryName) {
+            const selectedName = countryName;
+            console.log(selectedName);
+            const xhttp = new XMLHttpRequest();
+
+            xhttp.onload = function () {
+                const tradeagreementarray = JSON.parse(this.responseText);
+
+                if (tradeagreementarray.length > 0) {
+                    enablesection();
+                    activatesubmit();
+                    countrynotfound.innerHTML = "";
+                    var leftbox = document.getElementById("leftbox");
+                    var rightbox = document.getElementById("rightbox");
+                    leftbox.innerHTML = "";
+
+
+                    for (var i = 0; i < tradeagreementarray.length; i++) {
+                        var trade = tradeAgreements.find(s => s.agreecode == tradeagreementarray[i].agreecode);
+                        var theoption = document.createElement('option');
+                        theoption.value = trade.agreecode;
+                        theoption.text = trade.agreename;
+                        leftbox.add(theoption);
+
+                        for (var j = 0; j < rightbox.length; j++) {
+                            if (rightbox.options[j].value == theoption.value)
+                                rightbox.remove(j);
+                        }
+                    }
+                }
+
+            }
+            xhttp.open("GET", "displaytradedetails.php?countryname=" + selectedName, true);
+            xhttp.send();
+        }
+
+        function confirmsave() {
+            var confirmation = window.confirm("Save this entry?");
+            if (confirmation) {
+                submitNewCountry();
+            }
+        }
+
+        function confirmcancel() {
+            var confirmation = window.confirm("Cancel this entry?");
+
+            if (confirmation) {
+                docancel();
+            }
+        }
+
+        function docancel() {
+            setTradeAgreements();
+            document.getElementById("byname").disabled = false;
+
+            document.getElementById("countryerrormessage").innerHTML = "";
+            document.getElementById("populationerrormessage").innerHTML = "";
+            document.getElementById("landareaerrormessage").innerHTML = "";
+            document.getElementById("continenterrormessage").innerHTML = "";
+            document.getElementById("country").value = "";
+            document.getElementById("population").value = "";
+            document.getElementById("landarea").value = "";
+            document.getElementById("continentslist").value = "Select a continent";
+            save.disabled = true;
+            cancel.disabled = true;
+            continentslist.disabled = true;
+            population.disabled = true;
+            country.disabled = true;
+            landarea.disabled = true;
+            gtbutton.disabled = true;
+            ltbutton.disabled = true;
+            leftbox.disabled = true;
+            rightbox.disabled = true;
+
+        }
+
+
+        function displayerrormessages() {
+            var a = document.getElementById("country").value;
+            var b = parseFloat(document.getElementById("population").value);
+            var c = document.getElementById("landarea").value;
+            var d = document.getElementById("continentslist").value;
+            var bwhole = b > 0 && b % 1 == 0;
+            var cpositive = parseFloat(c) > 0;
+            if (a.length == 0 || !isNaN(a)) {
+                document.getElementById("countryerrormessage").innerHTML = "Country needs a name!";
+            } else if (a.length != 0 && isNaN(a)) {
+                document.getElementById("countryerrormessage").innerHTML = "";
+            }
+
+            if (bwhole = b > 0 && b % 1 == 0) {
+                document.getElementById("populationerrormessage").innerHTML = "";
+            }
+            else if (bwhole = b < 0 || b % 1 != 0) {
+                document.getElementById("populationerrormessage").innerHTML = "Country must have a population!";
+
+            }
+
+            if (cpositive) {
+                document.getElementById("landareaerrormessage").innerHTML = "";
+
+            }
+            else if (!cpositive) {
+                document.getElementById("landareaerrormessage").innerHTML = "Must specify land area!";
+            }
+
+            if (d == "") {
+                document.getElementById("continenterrormessage").innerHTML = "Must specify continent!";
+            }
+            else if (d != "") {
+                document.getElementById("continenterrormessage").innerHTML = "";
+
+            }
+
+        }
+
+        function setTradeAgreements() {
+            leftbox.innerHTML = "";
+            rightbox.innerHTML = "";
+
+            for (var x = 0; x < tradeAgreements.length; x++) {
+                var theoption = document.createElement('option');
+                theoption.value = tradeAgreements[x].agreecode;
+                theoption.innerHTML = tradeAgreements[x].agreename;
+                rightbox.appendChild(theoption);
+            }
+        }
+
+
+        var tradeAgreements = [];
+        function displaybox() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                var tradeagreementarray = JSON.parse(this.responseText);
+                tradeAgreements = tradeagreementarray;
+                setTradeAgreements();
+            }
+
+            xhttp.open("GET", "tradelist.php", true);
+            xhttp.send();
+        }
+
+        function moveOptions(source, destination) {
+            var selectedOptions = source.selectedOptions;
+            var len = selectedOptions.length;
+            for (var i = len - 1; i >= 0; i--) {
+                destination.add(selectedOptions[i]);
+            }
+        }
+
+        function activatesubmit() {
+            console.log("Inside activatesubmit function");
+
+            var a = document.getElementById("country").value;
+            var b = parseFloat(document.getElementById("population").value);
+            var c = document.getElementById("landarea").value;
+            var d = document.getElementById("continentslist").value;
+
+            var bwhole = b > 0 && b % 1 == 0;
+            var cpositive = parseFloat(c) > 0;
+
+            if (a.length != 0 && bwhole && cpositive && d != "") {
+                console.log("Conditions met. Enabling submit button.");
+                save.disabled = false;
+            } else {
+                console.log("Conditions not met. Submit button remains disabled.");
+                save.disabled = true;
+            }
+        }
+
+
+
+
+
+        function moveRight() {
+            moveOptions(leftbox, rightbox);
+        }
+
+        function moveLeft() {
+            moveOptions(rightbox, leftbox);
+        }
+
+        function populatecontinentpulldown() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                var continentarray = JSON.parse(this.responseText);
+                var continentslist = document.getElementById("continentslist");
+                continentslist.innerHTML = "";
+                var all = document.createElement('option');
+                all.value = '';
+                all.innerHTML = 'Select a continent';
+                continentslist.appendChild(all);
+
+                for (var x = 0; x < continentarray.length; x++) {
+                    var theoption = document.createElement('option');
+                    theoption.value = continentarray[x].continentcode;
+                    theoption.innerHTML = continentarray[x].continentname;
+                    continentslist.appendChild(theoption);
+                }
+            }
+            xhttp.open("GET", "continent.php", true);
+            xhttp.send();
+        }
+
+        function fetchByCountryname() {
+            const xhttp = new XMLHttpRequest();
+            var selectName = document.getElementById("byname");
+
+            xhttp.onload = function () {
+                var countrylist = document.getElementById("countrylist");
+                countrylist.innerHTML = "";
+                countrynotfound.innerHTML = "";
+
+                var countryarray = JSON.parse(this.responseText);
+                if (countryarray.length > 0) {
+                    for (var i = 0; i < countryarray.length; i++) {
+                        var option = document.createElement("span");
+                        option.innerHTML = countryarray[i].countryname;
+                        // option.setAttribute("onclick","displaybycountryname('" + countryarray[i].countryname +"');")
+                        // option.setAttribute("onclick","displaylistboxbycountryname('" + countryarray[i].countryname +"');")
+                        option.setAttribute("onclick", "displaybycountryname('" + countryarray[i].countryname + "'); displaylistboxbycountryname('" + countryarray[i].countryname + "');");
+
+                        countrylist.innerHTML += "<br />";
+                        countrylist.appendChild(option);
+                    }
+                } else {
+                    countrynotfound.innerHTML = "No matching countries found.";
+                }
+            };
+
+            xhttp.open("GET", "byname.php?countryname=" + selectName.value, true);
+            xhttp.send();
+        }
+
+    </script>
+</head>
+
+<body onload="populatecontinentpulldown(); displaybox();">
+
+    <div class="topbar" id="addcountry" onclick>Add/ Edit country</div>
+    <div class="topbar" id="generatechart" onclick="window.location='generatechart.html'">Generate Chart</div>
+    <hr>
+
+
+    <div id=page1>
+
+        <div id="searchsection">
+            <div class="search" style="text-align: center; font-weight: bold; font-size: 26px;">Search</div>
+            <br>
+            <button type="button" style="margin-left: 380px;" onclick="enablesection();">Add new country</button>
+            <br>
+            <div class="labelsec">Search for Country:</div>
+            <div class="datasec">
+                <input type="text" id="byname" oninput="fetchByCountryname()" />
+                <div class="errormessage" id="countrynotfound">No matching countries found.
+                </div>
+                <br>
+                <div id="countrylist" style="position:fixed;z-index: 2;"></div>
+            </div>
+        </div>
+
+
+
+        <hr>
+
+
+        <div id="dataentrysection">
+            <div class="search" style="text-align:center;font-weight: bold; font-size: 26px;">DataEntry</div>
+            <br>
+            <div class="labelsec">Country: </div>
+            <input class="datasec" id="country" type="text" oninput="activatesubmit();displayerrormessages();"
+                disabled />
+
+            <div class="errormessage" id="countryerrormessage"></div>
+
+            <br>
+            <div class="labelsec">Population: </div>
+            <input class="datasec" id="population" type="number" oninput="activatesubmit();displayerrormessages();"
+                disabled />
+            <div class="errormessage" id="populationerrormessage"></div>
+
+            <br>
+            <div class="labelsec">Landarea: </div>
+            <input class="datasec" id="landarea" type="number" oninput="activatesubmit();displayerrormessages();"
+                onblur="activatesubmit();" disabled /><span>km<sup>2</sup></span>
+            <div class="errormessage" id="landareaerrormessage"></div>
+
+            <br>
+            <div class="labelsec">Continent: </div>
+            <select id="continentslist" disabled oninput="activatesubmit();displayerrormessages();"
+                onblur="activatesubmit();">
+                <option id="continentselected" value="" selected>Select a continent</option>
+            </select>
+            <br>
+
+
+
+
+
+            <div class="errormessage" id="continenterrormessage"></div>
+
+            <br>
+            <div class="labelsec">Trade Agreements:</div>
+
+            <div class="datasec" style="font-weight:bold">
+
+
+                <div style="display: inline-block">Agreements Entered Into
+                    <br>
+                    <select id="leftbox" size="10" multiple disabled>
+                    </select>
+                </div>
+
+
+                <div style="display: inline-block;vertical-align: top;margin-top: 20px;">
+                    <button type="button" id="gtbutton" onclick="moveRight();" disabled>&gt;&gt;&gt;</button>
+                    <br /><br />
+                    <button type="button" id="ltbutton" onclick="moveLeft();" disabled>&lt;&lt;&lt;</button>
+                </div>
+
+                <div style="display: inline-block">Possible Agreements
+                    <br>
+                    <select id="rightbox" size="10" multiple disabled>
+                    </select>
+                </div>
+
+            </div>
+
+            <br>
+            <div style="width: 250px; display: inline-block;"> </div>
+            <button type="button" id="cancel" onclick="confirmcancel();" disabled>Cancel</button>
+            <div style="width: 800px; display: inline-block;"> </div>
+            <button type="button" id="save" onclick="confirmsave();" disabled>Submit</button>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://www.w3.org/StyleSheets/Core/Chocolate.css" rel="stylesheet" type="text/css" />
+        <style>
+            .labelsec {
+                display: inline-block;
+                font-weight: 550; 
+                text-align: right;
+                width: 200px;
+            }
+            .datasec {
+                display: inline-block;
+                vertical-align: top;
+            }
+            #cancel, #save {
+                width: 50px;
+                height: 30px;
+                text-align: center;
+            }
+            .buttons {
+                display: inline-block;
+            }
+            #space {
+                width: 300px;
+            }
+            #byempid {
+                width: 100px;
+            }
+            #byname {
+                width: 300px;
+            }
+            .errormessage{
+                color: red;
+                display:inline-block;
+            }
+            #empnamelist {
+                display: none;
+                position: relative;
+                display: inline-block;
+                background-color: white;
+                color: black;
+                cursor: pointer;
+           
+        }
+            
+        </style>
+
+        <script>
+            function enabledisable(param) {
+                
+            document.getElementById('byempid').disabled = param;
+              
+            document.getElementById('byname').disabled = param;
+            
+            document.getElementById('addemployee').disabled = param;
+            
+            document.getElementById('empname').disabled = !param;
+            
+            document.getElementById('passcode').disabled = !param;
+            
+            document.getElementById('admin').disabled = !param;
+            
+            document.getElementById('worker').disabled = !param;
+           
+            document.getElementById('cancel').disabled = !param; 
+
+            if (param==true){
+                document.getElementById("empnamelist").innerHTML="";
+            }
+           
+            
+
+            if (param==true && document.getElementById('empname').value.length > 0 && document.getElementById('passcode').value.length > 0) {
+                document.getElementById('save').disabled = false;
+            } else {
+                document.getElementById('save').disabled = true;
+            }
+            }
+
+            function fetchbyemployeeid(){
+                const xhttp = new XMLHttpRequest();
+                var selectempId = document.getElementById("byempid");
+
+                xhttp.onload = function(){
+                    empname.innerHTML = "";
+                    var empdetails = JSON.parse(this.responseText);
+                    if (empdetails.length>0)
+                {
+                    enabledisable(true)
+                    empidnotfounderror.innerHTML="";
+                    
+                   console.log(empdetails);
+                   console.log(empdetails[0].empid);
+                    document.getElementById("empid").innerText = empdetails[0].empid;
+                    document.getElementById("empname").value = empdetails[0].empname;
+                    if (empdetails[0].emptypecode == 'W')  {
+                        document.getElementById("admin").checked = false;
+                        document.getElementById("worker").checked = true;
+                    }  
+                    if (empdetails[0].emptypecode == 'A')  {
+                        document.getElementById("admin").checked = true;
+                        document.getElementById("worker").checked = false;
+                    }             
+                }
+
+                else{
+                    empidnotfounderror.innerHTML="Employee id "+selectempId.value+" not found";
+                }
+                displayerrormessages();
+                }
+                xhttp.open("GET", "searchempid.php?empid=" + selectempId.value, true);
+            xhttp.send();
+
+            }
+
+
+            function fetchbyemployeename() {
+        const selectedName = document.getElementById("byname");
+        console.log(selectedName);
+        const xhttp = new XMLHttpRequest();
+
+        xhttp.onload = function () {
+            const empdetails = JSON.parse(this.responseText);
+
+            if (empdetails.length > 0) {
+                enabledisable(true);
+                empidnotfounderror.innerHTML = "";
+                
+
+                document.getElementById("empid").innerHTML = empdetails[0].empid;
+                document.getElementById("empname").value = empdetails[0].empname;
+
+                if (empdetails[0].emptypecode == 'W') {
+                    document.getElementById("admin").checked = false;
+                    document.getElementById("worker").checked = true;
+                }
+                else if (empdetails[0].emptypecode == 'A') {
+                    document.getElementById("admin").checked = true;
+                    document.getElementById("worker").checked = false;
+                }
+                
+            } 
+            
+            else {
+                empidnotfounderror.innerHTML = "Employee not found";
+            }
+            displayerrormessages();
+        }
+
+        xhttp.open("GET", "searchempname.php?empname=" + selectedName.value, true);
+        xhttp.send();
+    }
+
+
+
+        function onselectingname(empid) {
+                    byempid.value=empid;
+                    fetchbyemployeeid();
+                }
+
+
+
+            function populateempnamepulldown() {
+            const xhttp = new XMLHttpRequest();
+            var selectName = document.getElementById("byname"); 
+            
+            
+            console.log(selectName.value);
+            xhttp.onload = function () {
+                var empnamelist = document.getElementById("empnamelist");
+                empnamelist.innerHTML = "";
+                var empnamearray = JSON.parse(this.responseText);
+                if (empnamearray.length>0)
+                {
+                    empnamenotfounderror.innerHTML="";
+                for (var i = 0; i < empnamearray.length; i++) {
+                    
+                    var option = document.createElement("span");
+                    option.innerHTML = empnamearray[i].empname;
+                    option.setAttribute("onclick", "onselectingname('" + empnamearray[i].empid +"');");
+                    empnamelist.innerHTML += "<br />";
+                    empnamelist.appendChild(option);
+                }
+            }
+            else{
+                    empnamenotfounderror.innerHTML="Employee not found!";
+            }
+            }
+
+            xhttp.open("GET", "searchempname.php?empname=" + selectName.value, true);
+            xhttp.send();
+        }
+
+        function addnewemployee(){
+                enabledisable(true);
+                
+                empid.innerHTML="(System generated)";
+                empname.value="";
+                passcode.value="";
+                displayerrormessages();      
+            }
+
+
+            function dosave(){ 
+                console.log('save called');
+                var memtype="";
+              const xhttp = new XMLHttpRequest();
+              xhttp.onload = function() {
+              }
+              if (empid.innerHTML=="(System generated)"){
+                    if (document.getElementById("admin").checked == true){
+                    memtype = document.getElementById("admin").value;  
+                    
+                    }
+                    if(document.getElementById("worker").checked == true){
+                    memtype = document.getElementById("worker").value;
+                    };
+            xhttp.open("GET", "insertemp.php?empname="+empname.value+"&passcode="+passcode.value+"&memtype="+memtype, true);
+                xhttp.send();
+            }
+                else{
+                    console.log("entered else block");
+                    if (document.getElementById("admin").checked == true){
+                    memtype = document.getElementById("admin").value;  
+                    
+                    }
+                    if(document.getElementById("worker").checked == true){
+                    memtype = document.getElementById("worker").value;
+                    }
+                    
+
+            xhttp.open("GET", "updateemp.php?empid="+byempid.value+"&empname="+empname.value+"&passcode="+passcode.value+"&memtype="+memtype, true);
+                xhttp.send();
+            }
+
+            }
+
+            function displayerrormessages(){
+
+                if (document.getElementById('empname').value.length != 0)  {
+                    document.getElementById('empnameempty').innerHTML = "";
+                } 
+                else{
+                    document.getElementById('empnameempty').innerHTML = "Employee name field cannot be empty";
+                }
+                
+                if (document.getElementById('passcode').value.length != 0)  {
+                    document.getElementById('emppassempty').innerHTML = "";
+                }  
+                else{
+                    document.getElementById('emppassempty').innerHTML = "Employee password field cannot be empty";
+                }
+                if (document.getElementById('admin').checked == true || document.getElementById('worker').checked == true){
+                    document.getElementById('emptypenotchecked').innerHTML = "";
+                }
+                else{
+                    document.getElementById('emptypenotchecked').innerHTML = "check one of those fields";
+                }
+                
+            }
+
+            //function whattocallonclick
+            
+            function checksave(){
+              
+                console.log(document.getElementById('admin').checked);
+                console.log(document.getElementById('worker').checked);
+
+                
+                if (empname.value.length>0 && 
+                    passcode.value.length>0 && (document.getElementById('admin').checked==true || document.getElementById('worker').checked==true ))
+                    save.disabled=false;
+                else 
+                  save.disabled=true;
+                
+            }
+
+            function confirmsave() {
+                console.log('enteredconfirmsave');
+            var confirmation = window.confirm("Save this entry?");
+            if (confirmation) {
+                dosave();
+            }
+        }
+        function docancel(){
+            document.getElementById('empid').innerHTML="";
+            document.getElementById('empname').value="";
+            document.getElementById('passcode').value="";
+            document.getElementById('admin').checked=false;
+            document.getElementById('worker').checked=false;
+            document.getElementById('emppassempty').innerHTML = "";
+            document.getElementById('empnameempty').innerHTML = "";
+            document.getElementById('emptypenotchecked').innerHTML = "";
+
+            enabledisable(false);
+
+        }
+
+        function confirmcancel() {
+            var confirmation = window.confirm("Cancel this entry?");
+            
+            if (confirmation) {
+                docancel();
+            }
+        }
+
+        </script>
+    </head>
+    <body onload="enabledisable(false);">
+        <div class="search">
+            <h1>Search</h1>
+            <div class="labelsec">
+                <label for="byempid">By Employee ID:</label>
+            </div>
+            <div class="datasec"><input type="number" id="byempid"  onblur="fetchbyemployeeid();"/></div>
+            <div class="buttons">
+                <button type="button" id="addemployee" name="addemployee" onclick="addnewemployee();checksave();">Add New Employee</button>
+            </div>
+            <div class="errormessage" id="empidnotfounderror"></div>
+            <br/>
+            <div class="labelsec">
+                <label for ="byname">By Employee Name:</label>
+            </div>
+            <div class="datasec">
+                <input type="text" id="byname" oninput="populateempnamepulldown();" onchange="fetchbyemployeename();"/>
+                <br/>
+                <div id="empnamelist"></div>
+            </div>
+            
+            <div class="errormessage" id="empnamenotfounderror"></div>
+            <br/>
+        </div>
+        <div class="dataentry" >
+            <h1>Data Entry</h1>
+            <div class="labelsec">
+                <label for="empid">Employee ID:</label>
+            </div>
+            <div class="datasec" id="empid"> </div>
+            <br/>
+            <div class="labelsec">
+                <label for="empname">Employee Name:</label>
+            </div>
+            
+            <div class="datasec">
+                <input type="text" id="empname" oninput="checksave();displayerrormessages();"/>
+            </div>
+
+            <div class="errormessage" id="empnameempty"></div>
+
+            <br/>
+            <div class="labelsec">
+                <label for="passcode">Password:</label>
+            </div>
+            <div class="datasec">
+                <input type="password" id="passcode" oninput="checksave();displayerrormessages();"/>
+            </div>
+            <div class="errormessage" id="emppassempty"></div>
+            <br/>
+            <div class="labelsec">
+                <label for="emptype">Employee Type:</label>
+            </div>
+            <div class="datasec">
+                <input type="radio" id="admin" value="A" name="emptype" oninput="checksave();displayerrormessages();"><label for = "admin">Administrator</label> <br/>
+                <input type="radio" id="worker" value="W" name="emptype" oninput="checksave();displayerrormessages();"><label for = "worker">Worker</label><br/>
+            </div>
+            <div class="errormessage" id="emptypenotchecked"></div>
+            <br/>
+            <div class="buttons">
+                <button type="button" id="cancel" name="cancel" onclick="confirmcancel()">Cancel</button>
+            </div>
+            <div class="buttons" id="space"></div>
+            <div class="buttons">
+                <button type="submit" id="save" name="save" onclick="confirmsave();">Save</button>
+            </div>
+        </div>
+    </body>
+</html>

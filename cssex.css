@@ -1,0 +1,39 @@
+
+body{background: black;
+    color: white;
+}
+a {color: Gray;}
+.header{border: 2px solid yellow;
+        height: 75px; 
+        width: 100vw;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        }
+.header h1 {text-align: center;} 
+.middle{position: absolute;
+        left: 0px;
+        top: 75px;
+        bottom: 75px;
+        display: flex;
+        flex-flow: row;
+        width: 100vw;
+        border: 2px solid yellow;
+        }
+        .sidebar{border: 2px solid yellow;
+                width: 200px;
+        }
+        .sidebar a:hover{font-style: italic;}
+        .sidebar a:visited{color: green;}
+        .sidebar a:active{font-size: larger;}
+        
+.footer{border: 2px solid yellow;
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 100vw; 
+        height: 75px;
+       }
+.mainbody{border: 2px solid yellow;
+         flex-grow: 1;
+        }

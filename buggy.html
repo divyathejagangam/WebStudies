@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .labelsec{
+                display: inline-block;
+                font-weight: bold; 
+                text-align: right;
+                vertical-align: top;
+                width: 200px;
+            }
+            .datasec{
+                display: inline-block;
+            }
+            </style>
+        <script>
+            function checktext(passarg) {
+                
+                var rot13button = document.getElementById('rot13');
+                var atbashbutton = document.getElementById('atbash');
+
+                if (passarg.value.length == 0) {
+                        rot13button.disabled = true;
+                        atbashbutton.disabled = true;
+                    } 
+                else {
+                    rot13button.disabled = false;
+                    atbashbutton.disabled = false;
+                    
+                    }
+                    }
+
+            function func_rot13(pass_arg){
+                var outputtext='';
+                    for (var i = 0;i < pass_arg.value.length;i++){
+                        if ((pass_arg.value.charCodeAt(i) >= 65 && pass_arg.value.charCodeAt(i) <= 77) || ((pass_arg.value.charCodeAt(i) >= 97 && pass_arg.value.charCodeAt(i) <= 109))){
+                            pass_arg.value.charCodeAt(i)+=13;
+                        }
+                        else if ((pass_arg.value.charCodeAt(i) >= 78 && pass_arg.value.charCodeAt(i) <= 90) || ((pass_arg.value.charCodeAt(i) >= 110 && pass_arg.value.charCodeAt(i) <= 122))){
+                            pass_arg.value.charCodeAt(i)-=13;
+                        }
+                        outputtext += String.fromCharCode(pass_arg.value.charCodeAt(i));
+                        }
+                        document.getElementById("encryptedtext").innerHTML = outputtext;
+
+                }
+
+            function func_atbash(pass_arg){
+
+    
+                    }
+        </script>
+    </head>
+    <body>
+        <form>
+            <div class = labelsec>
+                <label for = "textinput">Text to Encrypt:</label>
+            </div>
+            <div class = datasec>
+                <textarea
+                name = "textinput"
+                id = "textinput"
+                cols = "50" rows = "10"
+                oninput = "checktext(textinput)"></textarea>
+            </div><br/>
+
+
+            <div class = labelsec>
+                <label>Algorithm:</label>
+            </div>
+            <div class = datasec>
+               <button type = button
+               id = rot13
+               name = rot13
+               onclick = "func_rot13(textinput)"
+               disabled
+               >
+               ROT13
+            </button>
+               
+            </div>
+            <div class = datasec>
+                <button type = button
+                id = atbash
+                name = atbash
+                disabled
+                >
+                    Atbash
+                </button>
+             </div>
+            <br/>
+            <div class = labelsec>
+               <label for = "encryptedtext">Encrypted text:</label>
+            </div>
+            <div class="datasec" id = "encryptedtext" name = "encryptedtext"></div><br/>
+        </form>
+    </body>
+</html>

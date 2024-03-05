@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .labelsec{
+            display: inline-block;
+            font-weight: bold; 
+            text-align: right;
+            width: 200px;
+        }
+        .datasec{
+            display: inline-block;
+            vertical-align: top;
+        }
+        #calc{
+           
+            vertical-align: top;
+            margin-left: 203px;
+        }
+        #interestrate{
+            width: 65px;
+        }
+        thead{
+            font-weight: bold;
+        }
+        td{
+            text-align: center;
+        }
+        .tablesec{
+            margin-left: 50px;
+        }
+        .erroralert{
+            display: inline-block;
+        }
+
+        </style>
+        <script>
+            function inputcheck(){
+                var pcost = parseFloat(document.getElementById('projectcost').value);
+                var rbenefit = parseFloat(document.getElementById('recurringbenefit').value);
+                var rcost = parseFloat(document.getElementById('recurringcost').value);
+                var irate = parseFloat(document.getElementById('interestrate').value);
+                var calcbutton = document.getElementById('calc');
+               
+            if (pcost < 0) {
+                document.getElementById("pcosterror").innerHTML = 'Project Cost entered cannot be negative! Enter a value greater than zero';
+            }
+            else {
+                document.getElementById("pcosterror").innerHTML = ''; 
+            }
+            if (rbenefit < 0) {
+                document.getElementById("rbenefiterror").innerHTML = 'Recurring Benefit entered cannot be negative!';
+            }
+            else {
+                document.getElementById("rbenefiterror").innerHTML = ''; 
+            }
+            if (rcost < 0) {
+                document.getElementById("rcosterror").innerHTML = 'Recurring Cost entered cannot be negative!';
+                
+            }
+            else {
+                document.getElementById("rcosterror").innerHTML = ''; 
+            }
+
+            if (irate < 0) {
+                document.getElementById("irateerror").innerHTML = 'Interest Rate entered cannot be negative! Enter a value greater than zero';
+            } else if (irate == 0) {
+                document.getElementById("irateerror").innerHTML = 'Interest Rate entered cannot be zero! Enter a value greater than zero';
+            }
+            else {
+                
+                document.getElementById("irateerror").innerHTML = ''; 
+            }
+
+            if(pcost>=0 && rbenefit>=0 && rcost>=0 && irate>0){
+                calcbutton.disabled = false;
+            }
+            else {
+                calcbutton.disabled = true;
+            }
+        }
+
+            function calcval(){
+                var r = parseFloat(document.getElementById('interestrate').value);
+                var newcost = parseFloat(document.getElementById('recurringcost').value);
+                var newbenefit = parseFloat(document.getElementById('recurringbenefit').value);
+                var pcost = parseFloat(document.getElementById('projectcost').value);
+                var previous_debt = pcost;
+               var npv_cost = 0;
+            var npv_benefit = 0;
+                var debt_eoy = 0;
+                var y = 1;
+                var table_body = document.getElementById('table_body');
+                table_body.innerHTML = '';
+                while (debt_eoy >= 0)
+                {
+                    var new_entry = document.createElement('tr');
+
+                        var year_col = document.createElement('td');
+                        year_col.innerHTML = y;
+                        new_entry.appendChild(year_col);
+
+                        var prev_debt_col = document.createElement('td');
+                        prev_debt_col.innerHTML = previous_debt.toFixed(2);
+                        new_entry.appendChild(prev_debt_col);
+
+                        var newcost_col = document.createElement('td');
+                        newcost_col.innerHTML = newcost.toFixed(2);
+                        new_entry.appendChild(newcost_col);
+
+                        npv_cost = parseFloat(newcost / ((1 + (r / 100)) ** y));
+
+                        var npvcost_col = document.createElement('td');
+                        npvcost_col.innerHTML = npv_cost.toFixed(2);
+                        new_entry.appendChild(npvcost_col);
+
+                        var newbenefit_col = document.createElement('td');
+                        newbenefit_col.innerHTML = newbenefit.toFixed(2);
+                        new_entry.appendChild(newbenefit_col);
+                        
+
+                        npv_benefit = parseFloat(newbenefit / ((1 + (r / 100)) ** y));
+
+                        var npvbenefit_col = document.createElement('td');
+                        npvbenefit_col.innerHTML = npv_benefit.toFixed(2);
+                        new_entry.appendChild(npvbenefit_col);
+                        
+                        
+                        debt_eoy = previous_debt + npv_cost - npv_benefit;
+
+                        var debteoy_col = document.createElement('td');
+                        debteoy_col.innerHTML = debt_eoy.toFixed(2);
+                        new_entry.appendChild(debteoy_col);
+                        table_body.appendChild(new_entry);
+
+                    if (debt_eoy>=previous_debt){
+                        document.getElementById("NPVmessage").innerHTML='The project will never return its investment!';
+                        document.getElementById("NPVmessage").style.color = 'red';
+                        break;
+                    }
+                    document.getElementById("NPVmessage").style.color = 'black';
+                    document.getElementById("NPVmessage").innerHTML='The project will return its investment in '+y+' years'; 
+                    y++;
+                    previous_debt = debt_eoy;
+                     
+                }
+                
+            }
+
+
+        
+           
+        </script>
+    </head>
+    <body>
+        <div class = labelsec>
+        <label for = "projectcost">Project Cost: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id="projectcost"
+        name = "projectcost"
+        onkeyup="inputcheck()"
+        onblur="inputcheck()"
+        />
+        <span class="erroralert" id="pcosterror"></span>
+    </div><br/>
+
+    <div class = labelsec>
+        <label for = "recurringbenefit">Recurring Benefit: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id="recurringbenefit"
+        name = "recurringbenefit"
+        onkeyup="inputcheck()"
+        onblur="inputcheck()"
+        />
+        <span class="erroralert" id = "rbenefiterror" name = "erroralert"></span>
+    </div><br/>
+
+    <div class = labelsec>
+        <label for = "recurringcost">Recurring Cost: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id = "recurringcost"
+        name = "recurringcost"
+        onkeyup = "inputcheck()"
+        onblur = "inputcheck()"/>
+        <span class = "erroralert" id = "rcosterror" name = "erroralert"></span>
+    </div><br/>
+    <div class = labelsec>
+        <label for = "interestrate">Interest Rate: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id = "interestrate"
+        name = "interestrate"
+        oninput = "inputcheck()"
+        onblur = "inputcheck()"/>%</div>
+
+        <span class="erroralert" id="irateerror"></span><br/>
+     
+
+    <div class="datasec">
+        <button type= "button"
+            id = "calc" 
+            name = "calc"  
+            disabled
+            onclick = "calcval()";
+            >Calculate</button>
+
+    </div><br />
+    <div class = labelsec>
+        <label>NPV Breakeven: </label></div>
+    <div class = datasec id = "NPVmessage" name = "NPVmessage">
+        
+    </div>
+    <div class = "tablesec">
+    <table border = 1>
+        <thead>
+            <tr>
+                <td colspan = "7">Working</td>
+            </tr>
+            <tr>
+                <td>Year</td>
+                <td>Previous Year debt</td>
+                <td>New Cost</td>
+                <td>NPV New Cost</td>
+                <td>New Benefit</td>
+                <td>NPV New Benefit</td>
+                <td>Debt End of Year</td>
+            </tr>
+        </thead>
+        <tbody id="table_body">
+
+        </tbody>
+    </table>
+    </div>
+    </body>
+</html>
