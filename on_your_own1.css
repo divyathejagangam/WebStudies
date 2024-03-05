@@ -1,0 +1,67 @@
+body{
+    
+}
+.salmonbelly{
+    text-align: center;
+}
+
+.right-sidebar{
+    background-color: aquamarine;
+    height: 100vh;
+    width: 400px;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+}
+.left-sidebar{
+    background-color: orange;
+    height: 100vh;
+    width: 200px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+        
+}
+.left-sidebar a:hover{
+    font-weight: bold;
+}
+.left-sidebar a:active{
+    font-size: 30px;
+}
+
+h1{
+    text-align: center;
+}
+
+.middle-section{
+    top: 0px;
+    left: 200px;
+    right: 400px;
+    flex-grow: 1;
+    position: absolute;
+    padding: 30px;
+    
+
+}
+.image{
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
+#space{
+    display: inline-block;
+    width: 50px;
+}
+table, table th, table td { 
+    border: 1px solid black;
+}
+.tare{
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+    object-fit: cover;    
+}
+.loan{
+    font-style: italic;
+}
+

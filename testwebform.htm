@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .labelsec{
+                display: inline-block;
+                width: 200px; 
+                text-align: left;
+                vertical-align: top;
+                font-weight: bold;
+            }
+            .datasec{
+                display: inline-block;
+                width: 250px;
+            }
+            thead{
+                font-weight: bold;
+            }
+        </style>
+        <script>
+            function populatecontinentpulldown(){
+                const xhttp = new XMLHttpRequest();
+                    xhttp.onload = function()
+                    {
+                        var continentarray=JSON.parse(this.responseText);
+                        continentgoeshere.innerHTML="";
+                        
+                        var all = document.createElement('option');
+                        all.value = 'All';
+                        all.innerHTML = 'All';
+                        continentgoeshere.appendChild(all);
+                        
+                        var x = 0;
+                        for(x=0;x<continentarray.length;x++){
+                        var theoption=document.createElement('option');
+                        theoption.value=continentarray[x].continentcode;
+                        theoption.innerHTML=continentarray[x].continentname;
+                        continentgoeshere.appendChild(theoption);
+                    }
+
+                    }
+                    xhttp.open("GET","continent.php",true);
+                    xhttp.send();
+            }
+             function populatetradepulldown(){
+                const xhttp = new XMLHttpRequest();
+                    xhttp.onload = function()
+                    {
+                        var tradearray=JSON.parse(this.responseText);
+                        tradeagreementgoeshere.innerHTML="";
+                        
+                        var all = document.createElement('option');
+                        all.value = 'All';
+                        all.innerHTML = 'All';
+                        tradeagreementgoeshere.appendChild(all);
+                        
+                        var x = 0;
+                        for(x=0;x<tradearray.length;x++){
+                        var theoption=document.createElement('option');
+                        theoption.value=tradearray[x].agreecode;
+                        theoption.innerHTML=tradearray[x].agreename;
+                        tradeagreementgoeshere.appendChild(theoption);
+                    }
+
+                    }
+                    xhttp.open("GET","tradeagreement.php",true);
+                xhttp.send();
+            }  
+            function enabledisable(){
+                if( document.getElementById("byname").checked == true)
+                {
+                    document.getElementById("namegoeshere").disabled = false;
+                    document.getElementById("tradeagreementgoeshere").disabled = true;
+                    document.getElementById("continentgoeshere").disabled = true;
+                }
+                else if (document.getElementById("bycontinent").checked == true)
+                {
+                    document.getElementById("continentgoeshere").disabled = false;
+                    document.getElementById("namegoeshere").disabled = true;
+                    document.getElementById("tradeagreementgoeshere").disabled = true;
+                }
+                else if(document.getElementById("bytradeagreement").checked == true)
+                {
+                    document.getElementById("tradeagreementgoeshere").disabled = false;
+                    document.getElementById("namegoeshere").disabled = true;
+                    document.getElementById("continentgoeshere").disabled = true;
+                }
+            }
+
+            function defaulttableload(){
+                const xhttp = new XMLHttpRequest();
+                    xhttp.onload = function(){
+
+                        var countryarray=JSON.parse(this.responseText);
+                        var x=0;
+                        var rowobj=null;
+                        var cellobj=null;
+                        table_body.innerHTML=""
+                       
+                        for (x=0; x<countryarray.length; x++){ 
+                            thecountryname = countryarray[x].countryname;
+                            rowobj = document.createElement ("tr"); 
+                            cellobj = document.createElement ("td");
+                            cellobj.innerHTML = countryarray[x].countryname;
+                            rowobj.appendChild(cellobj);
+
+                            thepopulation = countryarray[x].population;
+                            cellobj = document.createElement ("td");
+                            cellobj.innerHTML = countryarray[x].population;
+                            rowobj.appendChild(cellobj);
+
+                            thelandarea = countryarray[x].landarea;
+                            cellobj = document.createElement ("td");
+                            cellobj.innerHTML = countryarray[x].landarea;
+                            rowobj.appendChild(cellobj);
+                            
+                            table_body.appendChild(rowobj);
+
+                    }
+            }
+            xhttp.open("GET","defaulttable.php",true);
+            xhttp.send();
+        }
+
+        function fetchByCountryname(){
+            const selectName = document.getElementById("namegoeshere");
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                var namearray = JSON.parse(this.responseText);
+                table_body.innerHTML= "";
+                var rowobj=null;
+                var cellobj=null;
+                var x = 0;
+
+                for (x = 0; x < namearray.length; x++) {
+          
+          rowobj = document.createElement("tr");
+          cellobj = document.createElement ("td");
+          cellobj.innerHTML = namearray[x].countryname;
+          rowobj.appendChild(cellobj);
+
+          cellobj = document.createElement ("td");
+          cellobj.innerHTML = namearray[x].population;
+          rowobj.appendChild(cellobj);
+
+          
+          cellobj = document.createElement ("td");
+          cellobj.innerHTML = namearray[x].landarea;
+          rowobj.appendChild(cellobj);
+
+          table_body.appendChild(rowobj);
+
+          
+          }
+          
+      }
+      xhttp.open("GET", "byname.php?countryname=" + selectName.value, true);
+      xhttp.send();
+
+
+            }
+
+        
+
+        function fetchByTradeagreement(){
+            const selectedTrade = document.getElementById("tradeagreementgoeshere").value;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+        var tradearray = JSON.parse(this.responseText);
+        table_body.innerHTML = ""; 
+        var rowobj=null;
+        var cellobj=null;
+        var x = 0;
+
+        for (x = 0; x < tradearray.length; x++) {
+          
+            rowobj = document.createElement("tr");
+            cellobj = document.createElement ("td");
+            cellobj.innerHTML = tradearray[x].countryname;
+            rowobj.appendChild(cellobj);
+
+            cellobj = document.createElement ("td");
+            cellobj.innerHTML = tradearray[x].population;
+            rowobj.appendChild(cellobj);
+
+            
+            cellobj = document.createElement ("td");
+            cellobj.innerHTML = tradearray[x].landarea;
+            rowobj.appendChild(cellobj);
+
+            table_body.appendChild(rowobj);
+
+            
+            }
+            
+        }
+        xhttp.open("GET", "bytrade.php?agreementcode=" + selectedTrade, true);
+        xhttp.send();
+
+        }
+
+        function fetchByContinent() {
+        const selectedContinent = document.getElementById("continentgoeshere").value;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+        const data = JSON.parse(this.responseText);
+        table_body.innerHTML = ""; 
+        var rowobj=null;
+        var cellobj=null;
+        var i = 0;
+
+        for (i = 0; i < data.length; i++) {
+            thecountryname = data[i].countryname;
+            rowobj = document.createElement("tr");
+            cellobj = document.createElement ("td");
+            cellobj.innerHTML = data[i].countryname;
+            rowobj.appendChild(cellobj);
+
+            thepopulation = data[i].population;
+            cellobj = document.createElement ("td");
+            cellobj.innerHTML = data[i].population;
+            rowobj.appendChild(cellobj);
+
+            thelandarea = data[i].landarea;
+            cellobj = document.createElement ("td");
+            cellobj.innerHTML = data[i].landarea;
+            rowobj.appendChild(cellobj);
+
+            table_body.appendChild(rowobj);
+
+            
+            }
+            
+        }
+        xhttp.open("GET", "bycontinent.php?continent=" + selectedContinent, true);
+        xhttp.send();
+
+    }
+
+   
+
+
+        </script>
+    </head>
+    <body onload="populatecontinentpulldown();populatetradepulldown();enabledisable();defaulttableload();">
+            <div class="labelsec">
+                <input type="radio"
+                    name="radioone" 
+                    id="byname" 
+                    checked
+                    onclick="enabledisable();fetchByCountryname();"
+                />       
+            <label for="byname">By name:</label>
+        </div>
+            <div class = "datasec">
+                <input type = "text"
+                onkeyup = "fetchByCountryname();"
+                id="namegoeshere"
+                />
+            </div><br/>
+            
+
+            <div class="labelsec">
+                <input type="radio"
+                    name="radioone" 
+                    id="bycontinent"
+                    onclick="enabledisable();fetchByContinent();"
+                />
+            <label for="bycontinent">By Continent:</label>
+        </div>
+        <div class = "datasec" >
+            <select onchange = "fetchByContinent();"
+            id = "continentgoeshere"
+            >
+            </select>
+        </div>
+        <br />
+
+            <div class="labelsec">
+                <input type = "radio"
+                    name = "radioone" 
+                    id = "bytradeagreement" 
+                    onclick = "enabledisable();fetchByTradeagreement();"
+                />
+            <label for = "bytradeagreement">By trade agreement:</label>
+        </div>
+            <div class = "datasec">
+                <select 
+                onchange = "fetchByTradeagreement();"
+                id = "tradeagreementgoeshere"
+                >
+                </select>
+        </div><br />
+        <hr>
+        <div class = "tablesec">
+            <table border = 1>
+                <thead>
+                    <tr>
+                        <td>Country Name</td>
+                        <td>Population</td>
+                        <td>Land Area (km<sup>2</sup>)</td>
+                        
+                    </tr>
+                </thead>
+                <tbody id="table_body">
+        
+                </tbody>
+            </table>
+            </div>
+         
+
+    </body>
+    </html>

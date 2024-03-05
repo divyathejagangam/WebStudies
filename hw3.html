@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            function addfive(whichcontrol){
+                if (whichcontrol.value.length==0){
+                    add5.innerHTML="";
+                    multbutt.disabled=true;
+                    return true;
+                    }
+                else {
+                        add5.innerHTML=parseFloat(whichcontrol.value)+5;
+                        multbutt. disabled=false;
+                        return true;
+                    }
+                }
+                function checkcomplex (whichcontrol, errormsgfield) {
+                    var passcheck=true;
+                    var x=0;
+                    if (whichcontrol.value.length==0){
+                        errormsgfield.innerHTML=""; 
+                        return true;
+                        }
+                    else {
+                    var myregex=new RegExp('[0-9]{3}-[0-9]{2}-[0-9]{4}$'); 
+                    passcheck=myregex.test (whichcontrol.value);
+                        } //end else
+                    if (passcheck){
+                        errormsgfield.innerHTML=""
+                        }
+                    else{
+                    errormsgfield.innerHTML="Must be of the form 999-99-9999!";
+                    }
+                    return passcheck;
+                }
+                function multbyfive(whichcontrol){
+                            if (whichcontrol.value.length==0){
+                            mult5.innerHTML="";
+                            }
+                            else
+                            {
+                                mult5. innerHTML=parseFloat(whichcontrol.value)*5;
+                            }
+                            
+                            }
+        </script>
+        <style>
+        .labelsec{
+            display: inline-block;
+            font-weight: bold; 
+            text-align: right;
+            width: 300px;
+        }
+        .datasec{
+            display: inline-block;
+        }
+        .errorsec{
+            display: inline-block;
+            color: red;
+        }
+        
+        </style>
+    </head>
+
+    <body>
+        <form>
+            <div class="labelsec">
+                <label for="numberthing">Some kind of number:</label>
+            </div>
+            <div class="datasec">
+                <input type="number" id="numberthing"
+                onblur="addfive(numberthing)"
+                onkeyup="addfive(numberthing)"/>
+            </div></br>
+           
+                <div   class="labelsec">
+                    Add 5 to numberthing:
+                </div>
+                 <div class="datasec">
+                <span id="add5"></span> 
+                </div><br/> 
+                <div class="labelsec">
+                    Times numberthing by 5:
+                </div> 
+                <div class="datasec">
+                <button type= "button"
+                         id="multbutt" 
+                         name="multbutt" 
+                         onclick="multbyfive(numberthing);"
+                         accesskey="m" 
+                         disabled
+                >
+                        <span style= "TEXT-DECORATION: underline">M</span>ultiply by 5
+                        </button>
+                        <span id="mult5"></span>
+                </div><br />
+                <div class="labelsec">
+                <label for="idthing">Thing with format 999-99-9999:</label> </div> 
+                <div class="datasec">
+                <input type="text" id="idthing" name="idthing" 
+                            onblur="checkcomplex(idthing,formaterror)"
+                            onKeyUp="checkcomplex(idthing,formaterror)"
+                            />
+                <span id="formaterror" class="errorsec"></span> 
+                </div><br />
+                <div class="labelsec">
+                <label for="datething">Textbox that does dates: </label> </div> 
+                <div class="datasec">
+                <input type="date" id="datething" /> </div><br />
+                <div class="labelsec">
+                <label for="emailthing">Textbox that does emails:</label>
+                </div> 
+                <div class="datasec">
+                <input type="email" id="emailthing"/>
+                </div><br />
+        </form>
+    </body>
+</html>

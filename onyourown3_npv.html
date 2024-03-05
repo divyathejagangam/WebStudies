@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .labelsec{
+            display: inline-block;
+            font-weight: bold; 
+            text-align: right;
+            width: 200px;
+        }
+        .datasec{
+            display: inline-block;
+            vertical-align: top;
+        }
+        #calc{
+           
+            vertical-align: top;
+            margin-left: 203px;
+        }
+        #interestrate{
+            width: 65px;
+        }
+        td{
+            text-align: center;
+            font-weight: bold;
+        }
+        .tablesec{
+            margin-left: 50px;
+        }
+        .erroralert{
+            display: inline-block;
+        }
+
+        </style>
+        <script>
+            function inputcheck(){
+                var pcost = parseFloat(document.getElementById('projectcost').value);
+                var rbenefit = parseFloat(document.getElementById('recurringbenefit').value);
+                var rcost = parseFloat(document.getElementById('recurringcost').value);
+                var irate = parseFloat(document.getElementById('interestrate').value);
+                var calcbutton = document.getElementById('calc');
+               
+            if (pcost < 0) {
+                document.getElementById("pcosterror").innerHTML = 'Project Cost entered cannot be negative! Enter a value greater than zero';
+            }
+            else {
+                document.getElementById("pcosterror").innerHTML = ''; 
+            }
+            if (rbenefit < 0) {
+                document.getElementById("rbenefiterror").innerHTML = 'Recurring Benefit entered cannot be negative!';
+            }
+            else {
+                document.getElementById("rbenefiterror").innerHTML = ''; 
+            }
+            if (rcost < 0) {
+                document.getElementById("rcosterror").innerHTML = 'Recurring Cost entered cannot be negative!';
+                count+=1;
+            }
+            else {
+                document.getElementById("rcosterror").innerHTML = ''; 
+            }
+
+            if (irate < 0) {
+                document.getElementById("irateerror").innerHTML = 'Interest Rate entered cannot be negative! Enter a value greater than zero';
+            } else if (irate == 0) {
+                document.getElementById("irateerror").innerHTML = 'Interest Rate entered cannot be zero! Enter a value greater than zero';
+            }
+            else {
+                
+                document.getElementById("irateerror").innerHTML = ''; 
+            }
+
+            if(pcost>=0 && rbenefit>=0 && rcost>=0 && irate>0){
+                calcbutton.disabled = false;
+            }
+            else {
+                calcbutton.disabled = true;
+            }
+        }
+           
+        </script>
+    </head>
+    <body>
+        <div class = labelsec>
+        <label for = "projectcost">Project Cost: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id="projectcost"
+        onkeyup="inputcheck()"
+        onblur="inputcheck()"
+        />
+        <span class="erroralert" id="pcosterror"></span>
+    </div><br/>
+
+    <div class = labelsec>
+        <label for = "recurringbenefit">Recurring Benefit: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id="recurringbenefit"
+        onkeyup="inputcheck()"
+        onblur="inputcheck()"
+        />
+        <span class="erroralert" id="rbenefiterror"></span>
+    </div><br/>
+
+    <div class = labelsec>
+        <label for = "recurringcost">Recurring Cost: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id = "recurringcost"
+        onkeyup = "inputcheck()"
+        onblur = "inputcheck()"/>
+        <span class="erroralert" id="rcosterror"></span>
+    </div><br/>
+    <div class = labelsec>
+        <label for = "interestrate">Interest Rate: </label>
+    </div>
+    <div class = datasec>
+        <input type = "number" 
+        id = "interestrate"
+        oninput = "inputcheck()"
+        onblur = "inputcheck()"/>%</div>
+
+        <span class="erroralert" id="irateerror"></span><br/>
+     
+
+    <div class="datasec">
+        <button type= "button"
+            id = "calc" 
+            name = "calc"  
+            disabled
+            >Calculate</button>
+
+    </div><br />
+    <div class = labelsec>
+        <label for = "NPVmessage">NPV Breakeven: </label>
+    </div>
+    <div class = datasec>
+        
+    </div>
+    <div class = "tablesec">
+    <table border = 1>
+        <thead>
+            <tr>
+                <td colspan = "7">Working</td>
+            </tr>
+            <tr>
+                <td>Year</td>
+                <td>Previous Year debt</td>
+                <td>New Cost</td>
+                <td>NPV New Cost</td>
+                <td>New Benefit</td>
+                <td>NPV New Benefit</td>
+                <td>Debt End of Year</td>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    </div>
+    </body>
+</html>
