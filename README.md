@@ -1,3 +1,3 @@
 # WebStudies
 ## WEB STUDIES-ASSIGNMENTS AND PROJECTS
-`#0969DA`
+`rgb(9, 105, 218)`
