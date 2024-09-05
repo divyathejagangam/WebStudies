@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <script>
+       function moveup() {
+    var counter = 0;
+    console.log("move up");
+    var theanim = setInterval(movingup, 40);
+    var myplayery = parseInt(playery.value);
+    console.log(myplayery);
+    var whichdir = parseInt(playerdir.value);
+    function movingup() {
+        if (counter <= 7) {
+            myplayery -= 10;
+            player.src = "gunnerup" + counter + ".png";
+            player.style.top = myplayery + "px";
+            player.style.transform = "scaleX(1)";
+            counter++;
+        } else {
+            player.src = "gunnerbase.png";
+            player.style.transform = "scaleX(1)";
+            clearInterval(theanim);
+            moveplayer(); // Call moveplayer here
+        }
+        playery.value = myplayery;
+        playerdir.value = 0;
+
+        // Additional check to prevent excessive movement
+        if (myplayery < 0) {
+            myplayery = 0;
+            player.style.top = myplayery + "px";
+            playery.value = myplayery;
+        }
+    }
+}
+
+        
+function movedown() {
+    var counter = 7;
+    console.log("move down");
+    var theanim = setInterval(movingdown, 40);
+    var myplayery = parseInt(playery.value);
+    console.log(myplayery);
+    var whichdir = parseInt(playerdir.value);
+    function movingdown() {
+        if (counter >= 0) {
+            myplayery += 10;
+            player.src = "gunnerup" + counter + ".png";
+            player.style.top = myplayery + "px";
+            player.style.transform = "scaleX(-1)";
+            counter--;
+        } else {
+            player.src = "gunnerbase.png";
+            player.style.transform = "scaleX(1)";
+            clearInterval(theanim);
+            moveplayer(); // Call moveplayer here
+        }
+
+        playery.value = myplayery;
+        playerdir.value = 0;
+
+        // Additional check to prevent excessive movement
+        if (myplayery > 720) {
+            myplayery = 720;
+            player.style.top = myplayery + "px";
+            playery.value = myplayery;
+        }
+    }
+}
+
+
+        var ammo = 10;
+
+        var ready = true;
+        function gunnerfire() {
+
+            if (ready && ammo > 0 && !reloadgun) {
+
+                ready = false;
+                ammo--;
+                var counter = 0;
+
+                var theanim = setInterval(firinggun, 40);
+
+                function firinggun() {
+                    console.log("ENTERED firing gun")
+
+                    player.src = "gunnerfire" + counter + ".png";
+                    counter++;
+                    gunstatus.innerHTML = "Gun status: Cooling Down";
+
+                    if (counter > 3) {
+                        player.src = "gunnerbase.png";
+                        player.style.transform = "scaleX(1)";
+                        clearInterval(theanim);
+                        counter = 0;
+
+                        var cooldown = setTimeout(coolingdown, 1000);
+                        function coolingdown() {
+                            setTimeout(gunReady, 1000);
+                        }
+
+                        var gunfireaudio = document.createElement("audio");
+                        var gunfiresource = document.createElement("source");
+                        gunfiresource.src = "gunshot.mp3";
+                        gunfireaudio.appendChild(gunfiresource);
+                        gunfireaudio.play();
+                        killzombie();
+
+                        document.getElementById("ammo").innerHTML = "Ammo left: " + ammo;
+
+                        if (ammo == 0) {
+                            reload();
+                        }
+                    }
+                }
+            }
+        }
+
+        var timeInterval = 1000;
+
+        function updatetimeInterval() {
+            if (timeInterval > 1000) {
+               
+                timeInterval -= 100;
+            }
+            else if (timeInterval > 700) {
+                
+                timeInterval -= 50;
+            }
+            else if (timeInterval > 500) {
+                
+                timeInterval -= 25;
+            }
+            else if (timeInterval > 250) {
+                
+                timeInterval -= 10;
+            } else {
+               
+                timeInterval = 100;
+            }
+        }
+
+        var killcounter = 0;
+        function killzombie() {
+            console.log("kill zombie called");
+            var zombies = document.getElementsByClassName("zombie");
+            var playery = parseInt(document.getElementById("playery").value);
+            for (var i = 0; i < zombies.length; i++) {
+                var newzombie = zombies[i];
+                var newzombieX = parseInt(newzombie.style.left);
+                var newzombieY = parseInt(newzombie.style.top);
+
+                if (playery == newzombieY && newzombie.id > 0) {
+                    console.log("zombie with id number " + newzombie.id + " killed");
+                    killcounter++;
+                    zombies[i].setAttribute("killed", "true");
+                    playdeathAnime(newzombie);
+
+                    document.getElementById("killstatus").innerHTML = "Zombies killed: " + killcounter;
+                    break;
+                }
+            }
+
+            function playdeathAnime(zombie) {
+                var counter = 0;
+                var theanim = setInterval(deathAnime, 40);
+
+                function deathAnime() {
+                    if (counter <= 3) {
+                        zombie.src = "zombiedead" + counter + ".png";
+                    } else {
+                        zombie.src = "zombiedead3.png";
+                        zombie.id *= -1;
+                        console.log(zombie.id);
+                        clearInterval(theanim);
+                        return;
+                    }
+                    counter++;
+                }
+            }
+        }
+
+        function updateAndMove() {
+            if (playerKilled) {
+                return;
+            }
+            moveZombie();
+        }
+
+        function spawnZombie() {
+            setInterval(function () {
+                updatetimeInterval();
+                updateAndMove();
+            }, timeInterval);
+        }
+
+        var unique_id = 1;
+        function moveZombie() {
+            var canvas = document.getElementById("MyCanvas");
+            var zombie = document.createElement("img");
+
+            zombie.src = "zombie0.png";
+            zombie.id = unique_id;
+            zombie.setAttribute("killed", "false");
+            zombie.className = "zombie";
+
+            var lane = Math.floor(Math.random() * 10);
+            zombie.style.top = lane * 80 + "px";
+            zombie.style.left = "920px";
+
+            canvas.appendChild(zombie);
+            animateZombie(zombie);
+            unique_id++;
+        }
+
+        function animateZombie(zombie) {
+            var zombiePos = 920;
+            var zombieSpeed = 5;
+            var counter = 0;
+
+            zombie.style.position = "absolute";
+            zombie.style.height = "80px";
+
+            var zombieAnim = setInterval(movingZombie, 200);
+
+            function movingZombie() {
+                if (counter < 4 && zombie.id > 0) {
+                    zombie.src = "zombie" + counter + ".png";
+                    if (zombie.getAttribute("killed") == "false") {
+                        zombiePos -= 10;
+                        zombie.style.left = zombiePos + "px";
+                        counter++;
+                    }
+                } else {
+                    counter = 0;
+                }
+
+                if (zombiePos < 80 || playerKilled) {
+                    clearInterval(zombieAnim);
+
+                    if (!playerKilled) {
+                        killplayer();
+                    }
+                }
+            }
+        }
+
+        var playerKilled = false;
+
+        function killplayer() {
+            if (playerKilled) {
+                return;
+            }
+            playerKilled = true;
+            var killAnim = document.getElementById("player");
+            var counter = 0;
+            var playerDie = setInterval(killingplayer, 100);
+            function killingplayer() {
+                if (counter <= 3) {
+                    killAnim.src = "gunnerdie" + counter + ".png";
+                    counter++;
+                } else {
+                    killAnim.src = "gunnerdie3.png";
+                    gameover();
+                }
+            }
+        }
+
+        var gameoverFlag = false;
+        function gameover() {
+            if (gameoverFlag) {
+                return;
+            }
+
+            var eatenaudio = document.createElement("audio");
+            var eatensource = document.createElement("source");
+            eatenaudio.src = "eaten.mp3";
+            eatenaudio.appendChild(eatensource);
+            eatenaudio.play();
+            gameoverFlag = true;
+
+            var gameoverdiv = document.createElement("div");
+            gameoverdiv.id = "gameover";
+            gameoverdiv.innerHTML = "Game Over!";
+            gameoverdiv.style.color = "red";
+            gameoverdiv.style.position = "absolute";
+            gameoverdiv.style.left = "350px";
+            gameoverdiv.style.top = "380px";
+            gameoverdiv.style.fontSize = "10px";
+
+            document.body.appendChild(gameoverdiv);
+
+            var gameoverSize = 10;
+            var increaseFontSize = setInterval(incrementFont, 40);
+
+            function incrementFont() {
+                if (gameoverSize < 44) {
+                    gameoverSize += 1;
+                    gameoverdiv.style.fontSize = gameoverSize + "px";
+                } else {
+                    clearInterval(increaseFontSize);
+                }
+            }
+        }
+
+        var reloadgun = false;
+        function reload() {
+            if (gameoverFlag) {
+                return;
+            }
+            if (!reloadgun) {
+                reloadgun = true;
+                var reloadWait = 0;
+
+                gunstatus.innerHTML = "Gun status: Reload";
+
+                var reloadAnim = setInterval(reloadinggun, 1000);
+                var reloadaudio = document.createElement("audio");
+                var reloadsource = document.createElement("source");
+                reloadsource.src = "reload.mp3";
+                reloadaudio.appendChild(reloadsource);
+                reloadaudio.play();
+
+                function reloadinggun() {
+                    reloadWait++;
+                    if (reloadWait == 1) {
+                        gunstatus.innerHTML = "Gun status: Reload";
+                    }
+                    gunReady();
+                    if (reloadWait >= 3) {
+                        clearInterval(reloadAnim);
+                        reloadgun = false;
+                        ammo = 10;
+                        document.getElementById("ammo").innerHTML = "Ammo left: " + ammo;
+
+                    }
+                    else {
+                        gunstatus.innerHTML = "Gun status: Reload";
+                    }
+                }
+            }
+        }
+
+        function gunReady() {
+            gunstatus.innerHTML = "Gun status: Ready";
+            ready = true;
+        }
+
+        function moveplayer() {
+    console.log("ENTERED moveplayer");
+
+    
+    clearInterval(window.movePlayerInterval);
+
+    
+    window.movePlayerInterval = setInterval(playerframe, 40);
+
+    function playerframe() {
+        var whichdir = parseInt(playerdir.value);
+        if (whichdir == 1) {
+            movedown();
+        } else if (whichdir == -1) {
+            moveup();
+        }
+    }
+}
+
+
+        function userkeypress(myevent) {
+            if (gameoverFlag  || reloadgun) {
+                return;
+            }
+
+            if (myevent.keyCode == 38 || myevent.keyCode == 37) {
+                playerdir.value = -1;
+                moveplayer();
+            } else if (myevent.keyCode == 39 || myevent.keyCode == 40) {
+                playerdir.value = 1;
+                moveplayer();
+            } else if (myevent.type == "click" || myevent.keyCode == 32) {
+                gunnerfire();
+            } else if (myevent.keyCode == 82) {
+                reload();
+            }
+        }
+
+        function onclickup(myevent) {
+            if (gameoverFlag) {
+                return;
+            }
+
+            if (myevent.type == "mouseup") {
+                playerdir.value = -1;
+                moveplayer();
+            }
+        }
+
+        function onclickdown(myevent) {
+            if (gameoverFlag) {
+                return;
+            }
+
+            if (myevent.type == "mouseup") {
+                playerdir.value = 1;
+                moveplayer();
+            }
+        }
+    </script>
+</head>
+
+<body onload="spawnZombie()" onkeydown="userkeypress(event)">
+    <form name="zombie-game">
+        <div id="MyCanvas"
+            style="width: 1000px; height: 800px;position: relative; border: solid 1px; display: inline-block;">
+            <img id="player" src="gunnerbase.png" style="height: 80px; position: absolute; top: 400px;">
+
+            <input type="hidden" name="playery" id="playery" value="400px" />
+            <input type="hidden" name="playerdir" id="playerdir" value="0" />
+        </div>
+        <div id="status" style="display: inline-block; vertical-align: top;">
+            <span id="killstatus"> Zombies killed: 0</span>
+            <br />
+            <span id="ammo"> Ammo left: 10 </span>
+            <br />
+            <span id="gunstatus"> Gun status: ready </span>
+            <br />
+            <div id="controls" style="width: 400px;height: 150px;">
+                <div id="buttons">
+
+                    <div id="moveupbutton" type="button" onmouseup="onclickup(event);"
+                        style="width: 50px; height: 45px; background-color: rgb(220,220,220); border: 1px solid black; margin-left: 130px; ">
+                        <img id="up" src="uparrow.png" style="width: 30px; height: 35px; left: 30px;margin: 10px" />
+                    </div>
+
+                    <button type="button" onclick="userkeypress(event)"
+                        style="width: 230px; height: 50px; background-color: rgb(220,220,220); border: 1px solid black; text-align:center; margin-top: -5px; ">Shoot
+                    </button>
+                    <button type="button" onclick="reload()"
+                        style="width: 60px; height: 50px; background-color: rgb(220,220,220); border: 1px solid black; text-align:center; ">
+                        Reload </button>
+                    <div id="movedownbutton" type="button" onmouseup="onclickdown(event);"
+                        style="width: 50px; height: 45px; background-color: rgb(220,220,220); border: 1px solid black; margin-left: 130px; ">
+                        <img id="down" src="downarrow.png"
+                            style="width: 30px; height: 35px; left: 30px;margin-left: 10px;margin-right: 10px;margin-bottom: 10px;margin-top: 0px;" />
+                    </div>
+
+                </div>
+
+            </div>
+
+    </form>
+
+</body>
+
+</html>
